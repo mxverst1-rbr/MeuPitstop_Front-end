@@ -1,26 +1,33 @@
 "use client";
 import { useState } from "react";
-import axios from "axios";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Login() {
-  const [form, setForm] = useState({ email: "", senha: "" });
+  const [form, setForm] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { login } = useAuth();
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+    setError("");
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
+    
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, form);
-      const token = res.data.token || res.data.access_token;
-      if (token) {
-        localStorage.setItem("token", token);
-        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-        router.push("/cadastroOficina");
-      }
+      await login(form);
+      router.push("/cadastroOficina");
     } catch (err) {
-      alert("Erro ao logar: " + (err.response?.data?.message || err.message));
+      const message = err.response?.data?.message || err.message || "Erro ao fazer login";
+      setError(message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -28,14 +35,18 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-[#0a0a1a]">
       <div className="w-full max-w-md p-8 text-center">
         
-        {/* Logo */}
         <div className="flex justify-center mb-6">
           <img src="/images/logompt.png" alt="Meu Pitstop" className="w-58 h-58 mx-auto" />
         </div>
 
         <h1 className="text-2xl font-bold text-white mb-6">Login</h1>
 
-        {/* Formulário */}
+        {error && (
+          <div className="mb-4 p-3 bg-red-500/20 border border-red-500 rounded-lg text-red-400 text-sm">
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-left text-gray-300 mb-1">Email</label>
@@ -43,7 +54,9 @@ export default function Login() {
               type="email"
               name="email"
               placeholder="Digite seu email"
+              value={form.email}
               onChange={handleChange}
+              required
               className="w-full px-4 py-2 rounded-full bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
           </div>
@@ -51,14 +64,15 @@ export default function Login() {
             <label className="block text-left text-gray-300 mb-1">Senha</label>
             <input
               type="password"
-              name="senha"
+              name="password"
               placeholder="Digite sua senha"
+              value={form.password}
               onChange={handleChange}
+              required
               className="w-full px-4 py-2 rounded-full bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
           </div>
 
-          {/* Esqueci senha */}
           <div className="text-right text-sm text-purple-400">
             <button
               type="button"
@@ -69,12 +83,12 @@ export default function Login() {
             </button>
           </div>
 
-          {/* Botão Entrar */}
           <button
             type="submit"
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 rounded-full transition"
+            disabled={loading}
+            className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold py-2 rounded-full transition"
           >
-            Entrar
+            {loading ? "Entrando..." : "Entrar"}
           </button>
         </form>
 

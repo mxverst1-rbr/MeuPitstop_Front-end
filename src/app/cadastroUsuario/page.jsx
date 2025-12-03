@@ -1,29 +1,41 @@
 "use client";
 import { useState } from "react";
-import axios from "axios";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 export default function CadastroUsuario() {
-  const [form, setForm] = useState({ nome: "", email: "", senha: "", confirmarSenha: "", veiculo: "" });
+  const [form, setForm] = useState({ name: "", email: "", password: "", confirmarSenha: "", address: "", phone_number: "" });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const { register } = useAuth();
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+    setError("");
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (form.senha !== form.confirmarSenha) {
-      alert("As senhas não conferem!");
+    
+    if (form.password !== form.confirmarSenha) {
+      setError("As senhas não conferem!");
       return;
     }
 
+    setLoading(true);
+    setError("");
+
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/usuarios`, {
-        nome: form.nome,
-        email: form.email,
-        senha: form.senha,
-        veiculo: form.veiculo
-      });
-      alert("Usuário cadastrado com sucesso!");
+      const { confirmarSenha, ...registerData } = form;
+      await register(registerData);
+      alert("Usuário cadastrado com sucesso! Faça login para continuar.");
+      router.push("/login");
     } catch (err) {
-      alert("Erro ao cadastrar: " + (err.response?.data?.message || err.message));
+      const message = err.response?.data?.message || err.message || "Erro ao cadastrar";
+      setError(message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -38,14 +50,22 @@ export default function CadastroUsuario() {
 
         <h1 className="text-2xl font-bold text-white mb-6">Cadastro</h1>
 
+        {error && (
+          <div className="mb-4 p-3 bg-red-500/20 border border-red-500 rounded-lg text-red-400 text-sm">
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4 text-left">
           <div>
             <label className="block text-gray-300 mb-1">Nome</label>
             <input
               type="text"
-              name="nome"
+              name="name"
               placeholder="Seu nome"
+              value={form.name}
               onChange={handleChange}
+              required
               className="w-full px-4 py-2 rounded-full bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
           </div>
@@ -56,6 +76,32 @@ export default function CadastroUsuario() {
               type="email"
               name="email"
               placeholder="Digite seu email"
+              value={form.email}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-2 rounded-full bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-300 mb-1">Telefone (Opcional)</label>
+            <input
+              type="tel"
+              name="phone_number"
+              placeholder="(11) 99999-9999"
+              value={form.phone_number}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-full bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-300 mb-1">Endereço (Opcional)</label>
+            <input
+              type="text"
+              name="address"
+              placeholder="Seu endereço"
+              value={form.address}
               onChange={handleChange}
               className="w-full px-4 py-2 rounded-full bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
@@ -65,9 +111,12 @@ export default function CadastroUsuario() {
             <label className="block text-gray-300 mb-1">Senha</label>
             <input
               type="password"
-              name="senha"
+              name="password"
               placeholder="Digite sua senha"
+              value={form.password}
               onChange={handleChange}
+              required
+              minLength={6}
               className="w-full px-4 py-2 rounded-full bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
           </div>
@@ -78,27 +127,20 @@ export default function CadastroUsuario() {
               type="password"
               name="confirmarSenha"
               placeholder="Confirme sua senha"
+              value={form.confirmarSenha}
               onChange={handleChange}
-              className="w-full px-4 py-2 rounded-full bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-300 mb-1">Veículo</label>
-            <input
-              type="text"
-              name="veiculo"
-              placeholder="Ex: Lamborghini Aventador SVJ"
-              onChange={handleChange}
+              required
+              minLength={6}
               className="w-full px-4 py-2 rounded-full bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 rounded-full transition"
+            disabled={loading}
+            className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold py-2 rounded-full transition"
           >
-            Cadastrar!
+            {loading ? "Cadastrando..." : "Cadastrar!"}
           </button>
         </form>
       </div>

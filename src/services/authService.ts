@@ -27,7 +27,7 @@ export const authService = {
   },
 
   async getCurrentUser(): Promise<User> {
-    const response = await api.get<User>("/myUser");
+    const response = await api.get<User>("/user/myUser");
     return response.data;
   },
 

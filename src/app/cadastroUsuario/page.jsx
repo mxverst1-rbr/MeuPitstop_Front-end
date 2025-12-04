@@ -3,24 +3,35 @@ import { useState } from "react";
 import axios from "axios";
 
 export default function CadastroUsuario() {
-  const [form, setForm] = useState({ nome: "", email: "", senha: "", confirmarSenha: "", veiculo: "" });
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    address: "",
+    phone_number: ""
+  });
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => 
+    setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (form.senha !== form.confirmarSenha) {
+
+    if (form.password !== form.confirmPassword) {
       alert("As senhas não conferem!");
       return;
     }
 
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/usuarios`, {
-        nome: form.nome,
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/register`, {
+        name: form.name,
         email: form.email,
-        senha: form.senha,
-        veiculo: form.veiculo
+        password: form.password,
+        address: form.address,
+        phone_number: form.phone_number
       });
+
       alert("Usuário cadastrado com sucesso!");
     } catch (err) {
       alert("Erro ao cadastrar: " + (err.response?.data?.message || err.message));
@@ -31,66 +42,77 @@ export default function CadastroUsuario() {
     <div className="min-h-screen flex items-center justify-center bg-[#0a0a1a]">
       <div className="w-full max-w-md p-8 text-center">
 
-        {/* Logo */}
         <div className="flex justify-center mb-1">
-          <img src="/images/logompt.png" alt="Meu Pitstop" className="w-58 h-58 mx-auto" />
+          <img src="/images/logompt.png" alt="Meu Pitstop" className="w-40 h-40 mx-auto" />
         </div>
 
         <h1 className="text-2xl font-bold text-white mb-6">Cadastro</h1>
 
         <form onSubmit={handleSubmit} className="space-y-4 text-left">
+
           <div>
             <label className="block text-gray-300 mb-1">Nome</label>
-            <input
+            <input 
               type="text"
-              name="nome"
+              name="name"
               placeholder="Seu nome"
               onChange={handleChange}
-              className="w-full px-4 py-2 rounded-full bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full px-4 py-2 rounded-full bg-gray-800 text-white"
             />
           </div>
 
           <div>
             <label className="block text-gray-300 mb-1">Email</label>
-            <input
+            <input 
               type="email"
               name="email"
-              placeholder="Digite seu email"
+              placeholder="email@email.com"
               onChange={handleChange}
-              className="w-full px-4 py-2 rounded-full bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full px-4 py-2 rounded-full bg-gray-800 text-white"
             />
           </div>
 
           <div>
             <label className="block text-gray-300 mb-1">Senha</label>
-            <input
+            <input 
               type="password"
-              name="senha"
+              name="password"
               placeholder="Digite sua senha"
               onChange={handleChange}
-              className="w-full px-4 py-2 rounded-full bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full px-4 py-2 rounded-full bg-gray-800 text-white"
             />
           </div>
 
           <div>
-            <label className="block text-gray-300 mb-1">Confirmar Senha</label>
-            <input
+            <label className="block text-gray-300 mb-1">Confirmar senha</label>
+            <input 
               type="password"
-              name="confirmarSenha"
+              name="confirmPassword"
               placeholder="Confirme sua senha"
               onChange={handleChange}
-              className="w-full px-4 py-2 rounded-full bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full px-4 py-2 rounded-full bg-gray-800 text-white"
             />
           </div>
 
           <div>
-            <label className="block text-gray-300 mb-1">Veículo</label>
-            <input
+            <label className="block text-gray-300 mb-1">Endereço (opcional)</label>
+            <input 
               type="text"
-              name="veiculo"
-              placeholder="Ex: Lamborghini Aventador SVJ"
+              name="address"
+              placeholder="Rua XPTO, 123"
               onChange={handleChange}
-              className="w-full px-4 py-2 rounded-full bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full px-4 py-2 rounded-full bg-gray-800 text-white"
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-300 mb-1">Telefone (opcional)</label>
+            <input 
+              type="text"
+              name="phone_number"
+              placeholder="(00) 00000-0000"
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-full bg-gray-800 text-white"
             />
           </div>
 
@@ -98,7 +120,7 @@ export default function CadastroUsuario() {
             type="submit"
             className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 rounded-full transition"
           >
-            Cadastrar!
+            Cadastrar
           </button>
         </form>
       </div>

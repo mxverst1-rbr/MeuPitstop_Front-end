@@ -43,14 +43,12 @@ export default function NovaManutencao() {
   };
 
   const validateForm = () => {
-    // Validação de placa (padrão Mercosul ou antigo)
     const plateRegex = /^[A-Z]{3}-?\d{4}$|^[A-Z]{3}\d[A-Z]\d{2}$/i;
     if (!plateRegex.test(form.vehicle_plate.replace(/\s/g, ""))) {
       setError("Placa inválida. Use o formato ABC-1234 ou ABC1D23");
       return false;
     }
 
-    // Validação de data
     const selectedDate = new Date(form.scheduled_date);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -139,7 +137,6 @@ export default function NovaManutencao() {
 
         <form onSubmit={handleSubmit} className="space-y-5 text-left">
           
-          {/* Modelo do Veículo */}
           <div>
             <label className="block text-gray-300 mb-2 font-medium">
               Modelo do Veículo <span className="text-red-500">*</span>
@@ -155,7 +152,6 @@ export default function NovaManutencao() {
             />
           </div>
 
-          {/* Placa do Veículo */}
           <div>
             <label className="block text-gray-300 mb-2 font-medium">
               Placa do Veículo <span className="text-red-500">*</span>
@@ -175,7 +171,6 @@ export default function NovaManutencao() {
             </p>
           </div>
 
-          {/* Tipo de Serviço */}
           <div>
             <label className="block text-gray-300 mb-2 font-medium">
               Tipo de Serviço <span className="text-red-500">*</span>

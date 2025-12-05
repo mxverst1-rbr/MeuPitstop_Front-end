@@ -42,17 +42,14 @@ api.interceptors.response.use(
         }
       }
 
-      // Forbidden
       if (status === 403) {
         console.error("Access forbidden:", error.response.data);
       }
 
-      // Server error
       if (status >= 500) {
         console.error("Server error:", error.response.data);
       }
     } else if (error.request) {
-      // Network error
       console.error("Network error:", error.message);
     }
 

@@ -22,7 +22,7 @@ export default function Login() {
     
     try {
       await login(form);
-      router.push("/cadastroOficina");
+      router.push("/dashboard");
     } catch (err) {
       const message = err.response?.data?.message || err.message || "Erro ao fazer login";
       setError(message);
